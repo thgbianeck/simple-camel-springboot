@@ -28,26 +28,6 @@ class LegacyFileRouteTest {
 
 
     @Test
-    @DisplayName("Test file move")
-    public void testFileMove() throws Exception {
-
-        // Setup the mock
-        String expectedBody = "This is the input file";
-        mockEndpoint.expectedBodiesReceived(expectedBody);
-        mockEndpoint.expectedMinimumMessageCount(1);
-
-        //Tweak the route definition
-        AdviceWith.adviceWith(context, "legacyFileMoveRouteId", routeBuilder -> {
-           routeBuilder.weaveByToUri("file:*").replace().to(mockEndpoint);
-        });
-
-        //Start the context and validate is mock
-        context.start();
-        mockEndpoint.assertIsSatisfied();
-
-    }
-
-    @Test
     @DisplayName("Test file move by mocking from endpoint")
     public void testFileMoveByMockingFromEndpoint() throws Exception {
 
