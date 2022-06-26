@@ -1,31 +1,30 @@
 package br.com.bnck.components;
 
+import br.com.bnck.beans.NameAddress;
 import br.com.bnck.processor.InboundMessageProcessor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.dataformat.beanio.BeanIODataFormat;
 import org.springframework.stereotype.Component;
 
-@Slf4j
-@Component
-public class LegacyFileRoute extends RouteBuilder {
+import javax.persistence.NamedQuery;
 
-    BeanIODataFormat inboundDataFormat =
-            new BeanIODataFormat("InboundMessageBeanIOMapping.xml", "inputMessageStream");
+@Component
+public class BatchJPAProcessingRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
 
-        from("file:src/data/input?fileName=inputFile.csv")
-                .routeId("legacyFileMoveRouteId")
-                .split(body().tokenize("\n", 1, true))
-                .unmarshal(inboundDataFormat)
+        from("timer:readDB?period=10000")
+                .routeId("readDBId")
+                .to("jpa:" + NamedQuery.class.getName() + "?namedQuery=fetchAllRows")
+                .split(body())
                     .process(new InboundMessageProcessor())
                     .log(LoggingLevel.INFO, "Transformed Body: ${body}")
                     .convertBodyTo(String.class)
                     .to("file:src/data/output?fileName=outputFile.csv&fileExist=append&appendChars=\\n")
-                .end();
+                .toD("jpa:" + NameAddress.class.getName() + "?nativeQuery=DELETE FROM NAME_ADDRESS WHERE id = ${header.consumedId}&useExecuteUpdate=true")
+                .end()
+        ;
 
     }
 }

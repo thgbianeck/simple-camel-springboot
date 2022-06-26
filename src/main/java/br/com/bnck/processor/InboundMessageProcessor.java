@@ -9,11 +9,10 @@ public class InboundMessageProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) throws Exception {
-        NameAddress nameAddress = exchange.getIn().getBody(NameAddress.class);
-        exchange.getIn().setBody(
-                new OutboundNameAddress(
-                        nameAddress.getName(),
-                        returnOutboundAddress(nameAddress)));
+        var nameAddress = exchange.getIn().getBody(NameAddress.class);
+        var outboundNameAddress = new OutboundNameAddress(nameAddress.getName(),returnOutboundAddress(nameAddress));
+        exchange.getIn().setBody(outboundNameAddress);
+        exchange.getIn().setHeader("consumedId", nameAddress.getId());
     }
 
     private String returnOutboundAddress(NameAddress nameAddress) {
