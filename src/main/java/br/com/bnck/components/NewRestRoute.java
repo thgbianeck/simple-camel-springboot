@@ -34,6 +34,7 @@ public class NewRestRoute extends RouteBuilder {
 //                .log(LoggingLevel.INFO, "Transformed Body: ${body}")
 //                .convertBodyTo(String.class)
 //                .to("file:src/data/output?fileName=outputFile.csv&fileExist=append&appendChars=\\n");
+                .to("activemq:queue:nameaddressqueue?exchangePattern=InOnly")
                 .to("jpa:" + NameAddress.class.getName());
     }
 }
