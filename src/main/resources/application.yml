@@ -1,6 +1,7 @@
 camel:
   springboot:
     main-run-controller: true
+    tracing: true
 
 logging:
   level:
